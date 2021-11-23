@@ -1,0 +1,23 @@
+program ola; 
+int a,int b,int c;
+
+
+
+
+def void fibonacci(int n){
+  int count;
+  a = 0;
+  b = 1;
+  while(count<n){
+    c = a + b;
+    a = b;
+    b = c;
+  }
+  print(c);
+}
+
+main{
+  int para1;
+  para1 = 5;
+  fibonacci(para1);
+}
