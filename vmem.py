@@ -1,6 +1,9 @@
 from toolfncs import *
 
 
+###############################################################
+################## 
+# esta clase sirve para guardar las variables en base a su tipo
 
 class memVal():
     def __init__(self,BaseIntMem,BaseFloatMem,BaseBoolMem,BaseCharMem):
@@ -22,7 +25,10 @@ class memVal():
       print(self.boolHolder)
       print("-MEMORIA CHARS")
       print(self.charHolder)
-
+################################################
+### Obtiene el valor que hay dentor de una dirección.
+### se usa la variable base y la variable que se le mandó como parametro
+### se resta la base con el parametro y se obtiene la casilla con el valor
     def getValue(self,dir):
         #print(dir,self.BaseIntMem, self.intHolder)
         if dir < self.BaseFloatMem:
@@ -33,9 +39,22 @@ class memVal():
         elif dir < self.BaseCharMem:
             return self.boolHolder[dir-self.BaseBoolMem-1]
         else: return self.charHolder[dir-self.BaseCharMem]
+################# Devuelve el tipo en base a su valor
+    def getType(self,dir):
+        if dir < self.BaseFloatMem :
+            return 'int'
+        elif dir < self.BaseBoolMem:
+            return 'float'
+        elif dir < self.BaseCharMem:
+            return 'bool'
+        else:
+            return 'rad'
 
+#############################
+###### Actualiza el valor de la casilla
+###### de la misma manera en que se obtiene el valor
     def updateValue(self,value,dir):
-       # print(dir,self.BaseIntMem,self.intHolder)
+        #print(dir,self.BaseIntMem,self.intHolder)
         if dir < self.BaseFloatMem:
             if len(self.intHolder) > dir-self.BaseIntMem:
                 self.intHolder[dir-self.BaseIntMem] = int(value)
@@ -57,7 +76,9 @@ class memVal():
             else:
                 self.charHolder.append(value)
 
-
+##############################################################
+#### esta clase sirve para guardar las variables en base a su scope
+#### hay un objeto por memoria
 class vmem():
     def __init__(self):
         self.gVMem = memVal(1000, 1500, 2000, 2500)
@@ -77,7 +98,9 @@ class vmem():
             return self.cVMem.getValue(dir)
         elif dir < 18000:
             return self.pVMem.getValue(dir)
-
+######################################
+#### actualiza los valores de la memoria. UpdateValue recibe la dirección donde se 
+#### va a actualizar y el valor con el que se va a actualizar
     def updateValue(self,value,dir):
         if dir < 3500:
             self.gVMem.updateValue(value,dir)
@@ -91,6 +114,23 @@ class vmem():
             self.pVMem.updateValue(value,dir)
 
 
+#########################################################################
+###### Obtiene el tipo de la dirección. Se manda a llamar los valores de memoria
+    def getType(self,dir):
+        if dir < 3500:
+           return self.gVMem.getType(dir)
+        elif dir < 6000:
+           return self.lVMem.getType(dir)
+        elif dir < 10000:
+           return self.tVMem.getType(dir)
+        elif dir < 14000:
+           return self.cVMem.getType(dir)
+        elif dir < 18000:
+           return self.pVMem.getType(dir)
+
+
+####################### ##########
+#### aqui alojamos a las variables :D recibe una función y aloja sus variables en memoria
     def initVar(self,funcion):
         if funcion.id != 'const':
             for i in range(0, len(funcion.vars)):
