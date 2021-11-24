@@ -12,6 +12,7 @@ variables = []
 operadores =[]
 ## virtualmem = []
 lstfunc =[]
+scope = 1
 
 cint   = 10000
 cfloat = 11000
@@ -39,7 +40,8 @@ ptchar  = 16000
 ptbool  = 17000
 
 
-
+#############################################################
+#         LÓGICA DE ASIGNACIÓN DE MEMORIA EN COMPILACIÓN
 
 def cleanlmemory():
   global  lvint,lvfloat,lvchar,tvint,tvfloat,tvchar,cint,cfloat,cchar,cbool,tvbool,lvbool, contTemp
@@ -137,22 +139,18 @@ def wheremec(tipo):
   if (tipo == 'int'):
       ret = cint
       cint   +=1
-      print(cint)
       return ret
   elif (tipo == 'float'):
       ret = cfloat
       cfloat +=1
-      print(cfloat)
       return ret 
   elif (tipo == 'char'):
       ret = cchar
       cchar  +=1
-      print(cchar)
       return ret 
   elif (tipo == 'bool'):
       ret = cbool
       cbool  +=1
-      print(cchar)
       return ret 
   print("no está definida en memoria")
   exit()
@@ -176,7 +174,44 @@ def wheremep(varType):
         ptchar +=1
         return ret 
 
+########################################################
+# Funciones para obtener tipo y dirección
+def getType(ID):
+  varLocales = list(map(lambda x: x.id ,lstfunc[scope].vars))
+  varGlobales = list(map(lambda x: x.id ,lstfunc[1].vars))
+  varConstant = list(map(lambda x: x.id ,lstfunc[0].vars))
+  if ID in varLocales:
+    idx = varLocales.index(ID)
+    return lstfunc[scope].vars[idx].tipo
+  elif ID in varGlobales:
+    idx = varGlobales.index(ID)
+    return lstfunc[1].vars[idx].tipo
+  elif ID in varConstant:
+    idT = varConstant.index(ID)
+    return lstfunc[0].vars[idT].tipo
+  print("ERROR: variable '", ID, "' no definida")
+  exit()
 
+def getDir(ID):
+    varLocales = list(map(lambda x: x.id ,lstfunc[scope].vars))
+    varGlobales = list(map(lambda x: x.id ,lstfunc[1].vars))
+    varConstant = list(map(lambda x: x.id ,lstfunc[0].vars))
+    if ID in varLocales:
+      idx = varLocales.index(ID)
+      return lstfunc[scope].vars[idx].dir
+    elif ID in varGlobales:
+      idx = varGlobales.index(ID)
+      return lstfunc[1].vars[idx].dir
+    elif ID in varConstant:
+      idT = varConstant.index(ID)
+      return lstfunc[0].vars[idT].dir
+    print("ERROR: variable '", ID, "' no definida")
+    exit()
+
+
+
+########################################################################
+# TOKENS Y PALABRAS RESERVADAS
 tokens = [
     'PLUS','MIN','MULT','DIVIDE',
     'ID','EQUAL','GTR','LST',
@@ -203,7 +238,10 @@ reservadas = {
     'mode' : 'MODET',
     'median' : 'MEDIANT',
     'sd' : 'SDT',
-    'variance' : 'VART'
+    'variance' : 'VART',
+    'hist' : 'HIST',
+    'rand' : "RANDOMF",
+    'input' : "INPUT"
 }
 #Si no comenzamos con "t_" PLY se enoja
 t_CTEFLOAT = r'\d+\.\d+'
@@ -235,7 +273,7 @@ t_COMMA = r','
 t_SEMICOLON = r';'
 # Si no ignoramos los espacios en blanco, el lexer se enoja
 t_ignore = r' '
-
+#####################################################################
 #Con esto incluimos el diccionario de las palabras reservadas a los tokens, así podemos incluir los statements, prints, tipos, y todo eso :D
 
 tokens = tokens + list(reservadas.values())
@@ -250,7 +288,7 @@ def t_ID(t):
     r'[a-zA-Z][a-zA-Z0-9]*'
     t.type = reservadas.get(t.value,'ID')
     return t
-
+################################################################
 
 
 
@@ -272,59 +310,24 @@ def t_error(t):
 lex.lex()
 
 #Aquí empieza el parser
+#####################################
+# INICIALIZACIÓN DEL PROGRAMA
 def p_programa(p):
     ''' programa : PROG ID SEMICOLON declare endprog
     '''
+######################################
+# DECLARACARACIONES DE FUNCIONES
 def p_func(p):
         ''' func : vfunc
                   | tfunc
         '''
-
-#Creo que dos auxiliares a var son necesarias para los diferentes tipos de output. intenté ponerlo en una cfg por si sola y así fue como lo ví, con var
-
-
-
-def p_var(p):
-    ''' var : tipo ID var2symtab  varsauxaux
-            | tipo ID LFTBRACK CTEINT arr2symtab RGTBRACK SEMICOLON
+def p_tipo(p):
+    ''' tipo : INT
+             | FLOAT
+             | CHAR
     '''
+    p[0] = p[1]
 
-
-def p_varsauxaux(p):
-    ''' varsauxaux :  COMMA var
-                   |  COMMA LFTBRACK superexpresion RGTBRACK varsauxaux
-                   |  SEMICOLON 
-    '''
-def p_declare(p):
-    ''' declare : func declare
-                    | var declare
-                    | main
-    '''
-
-
-
-
-def p_endprog(p):
-    'endprog : '
-    cuadruplos.append(cuadruplo(len(cuadruplos), "EndProg",None, None , None))
-
-numParam = 1
-
-def p_sendParam(p):
-  'sendParam : '
-  global numParam
-  if numParam-1 < len(lstfunc[indx].plist):
-    actparam = variables.pop()
-    if getType(actparam) == lstfunc[indx].plist[numParam-1]:
-      varTemp = "p" + str(numParam)
-      cuadruplos.append(cuadruplo(len(cuadruplos), "Params",getDir(actparam), None , varTemp))
-      numParam += 1
-    else: 
-      print("LOS TIPOS DE VARIABLES NO SON LOS MISMOS QUE LOS PARAMETROS")
-      exit()
-  else:
-      print("numero incorrecto de variables")
-      exit()
 
 ############# void func
 actfunc = ""
@@ -341,7 +344,9 @@ def p_vfuncaux2(p):
                     | COMMA tipo ID var2symtab params2lst vfuncaux2 
     '''
 
+
 ############## type func
+
 
 def p_tfunc(p):
     ''' tfunc : DEFINEFUNC tipo ID func2list FSTP tfuncaux
@@ -354,107 +359,23 @@ def p_tfuncaux2(p):
     ''' tfuncaux2 : LSTP fbloque ENDFunc
                     | COMMA tipo ID var2symtab params2lst tfuncaux2 
     '''
+################################################
+### DECLARACIONES DE VARIABLES, ARRAYS, Y SUS CUADRUPLOS
+#Creo que dos auxiliares a var son necesarias para los diferentes tipos de output. intenté ponerlo en una cfg por si sola y así fue como lo ví, con var
 
 
-
-def p_main(p):
-        ''' main : MAINFUNC gotomain bloque
-
-        '''
-def p_gotomain(p):
-  'gotomain :'
-  cuadruplos[0].res = len(cuadruplos)
-  global scope 
-  lstfunc.append(funcion('main','int',len(cuadruplos)))
-  scope = len(lstfunc)-1
-
-
-def p_tipo(p):
-    ''' tipo : INT
-             | FLOAT
-             | CHAR
-    '''
-    p[0] = p[1]
-    
-def p_bloque(p):
-    ''' bloque : FSTB estatutoaux LSTB
-               | FSTB LSTB
-    '''
-def p_fbloque(p):
-    ''' fbloque : FSTB fbloqueaux
-
-    '''
-def p_fbloqueaux(p):
-    ''' fbloqueaux : returnfunc fbloqueaux
-                   | estatuto fbloqueaux
-                   | LSTB
-    '''
-def p_estatuto(p):
-    ''' estatuto : asignacion
-                 | ifstat
-                 | escritura
-                 | llamada SEMICOLON
-                 | whileloop
-                 | forloop
-                 | var
-                 | counters
-                 
-
-    '''
-#Hice un estatuto Auxiliar porque necesitaba encontrar una manera de que pudiera haber un loop en bloque sin meter un bracket izquierda
-def p_estatutoaux(p):
-    ''' estatutoaux : estatuto
-                    | estatutoaux estatuto
+def p_var(p):
+    ''' var : tipo ID var2symtab  varsauxaux
+            | tipo ID LFTBRACK CTEINT arr2symtab RGTBRACK SEMICOLON
     '''
 
 
-#A la asignación de agregué que podría igualarse entre otras variables, se me hizo raro que no se pudiera
-def p_asignacion(p):
-    ''' asignacion : ID ID2LST EQUAL OP2LST superexpresion CuadruploAsignacion SEMICOLON
-                   | ID LFTBRACK ID RGTBRACK  EQUAL OP2LST superexpresion CuadruploAsignacionArr SEMICOLON
-
+def p_varsauxaux(p):
+    ''' varsauxaux :  COMMA var
+                   |  COMMA LFTBRACK superexpresion RGTBRACK varsauxaux
+                   |  SEMICOLON 
     '''
 
-def p_ifstat(p):
-    '''ifstat : IFS FSTP superexpresion LSTP Cuadgotofx fbloque updateJump ifstatx
-
-
-    '''
-def p_ifstatx(p):
-    '''ifstatx : CuadEndIfstat ELSES fbloque updateJump
-                | 
-
-    '''
-
-def p_escritura(p):
-    ''' escritura : PRINT FSTP prints LSTP SEMICOLON
-
-    '''
-#necesitamos de este prints para seguir concatenando
-def p_prints(p):
-    ''' prints : superexpresion CuadruploPRINT
-                        | superexpresion CuadruploPRINT COMMA prints
-                        | cte CuadruploPRINT
-                        | cte CuadruploPRINT COMMA prints
-
-    '''
-#########################################################################
-
-scope = 1
-## Cosas para la symtable
-
-def p_func2list(p):
-  'func2list :'
-  global scope
-  if p[-2] != "void":
-    lstfunc.append(funcion(p[-1],p[-2],len(cuadruplos)))
-    vmem = whereme(p[-2])
-    lstfunc[1].vars.append(variable(p[-1], p[-2], vmem,None))
-    scope = len(lstfunc)-1
-  else:
-    lstfunc.append(funcion(p[-1],p[-2],len(cuadruplos)))
-    lstfunc[1].vars.append(variable(p[-1], p[-2], "void",None))
-    scope = len(lstfunc)-1
 
 
 def p_var2symtab(p):
@@ -486,42 +407,293 @@ def p_arr2symtab(p):
         ID = p[-3] + '[' + str(i) + ']'
         tempDir = whereme(p[-4])
         lstfunc[scope].vars.append(variable(ID, p[-4], tempDir,p[-2]))
-#########################################################################}
-def p_counters(p):
-    ''' counters : ID ONEUP cuadcount SEMICOLON
-                  | ID ONEDOWN cuadcount SEMICOLON
+#########################################################
+#### DECLARACIONES DEL ESQUELETO DEL PROGRAMA
+def p_declare(p):
+    ''' declare : func declare
+                    | var declare
+                    | main
     '''
 
-def p_cuadcount(p):
-    ''' cuadcount :
-    '''
-    cuadruplos.append(cuadruplo(len(cuadruplos),p[-1],None,None,getDir(p[-2]) ))
 
-def p_superexpresion(p):
-    ''' superexpresion : expresion
-                | expresion ANDOP OP2LST superexpresion CuadruploAndOr
-                | expresion OROP OP2LST superexpresion CuadruploAndOr
-                | counters
+
+###########################
+## CUADRUPLO DE FINALIZACIÓN
+def p_endprog(p):
+    'endprog : '
+    cuadruplos.append(cuadruplo(len(cuadruplos), "EndProg",None, None , None))
+
+###############################################
+## DECLARACIÓN DE LA FUNCIÓN MAIN
+
+def p_main(p):
+        ''' main : MAINFUNC gotomain bloque
+
+        '''
+def p_gotomain(p):
+  'gotomain :'
+  cuadruplos[0].res = len(cuadruplos)
+  global scope 
+  lstfunc.append(funcion('main','int',len(cuadruplos)))
+  scope = len(lstfunc)-1
+
+
+####################################
+## BLOQUES PARA FUNCIONES, ESTATUTOS LÓGICOS Y MAIN.
+## HAY UN BLOQUE ESPECIAL PARA FUNCIONES, EL CUAL INCLUYE "RETURN"
+
+def p_bloque(p):
+    ''' bloque : FSTB estatutoaux LSTB
+               | FSTB LSTB
     '''
-def p_expresion(p):
-    ''' expresion : exp
-                | exp GTR OP2LST exp CuadruploBools
-                | exp LST OP2LST exp CuadruploBools
-                | exp DIFFERENT OP2LST exp CuadruploBools
-                | exp ISEQUAL OP2LST exp CuadruploBools
-                | exp LESSEQUAL OP2LST exp CuadruploBools
-                | exp GREATEQUAL OP2LST exp CuadruploBools
-                
+def p_fbloque(p):
+    ''' fbloque : FSTB fbloqueaux
+
+    '''
+def p_fbloqueaux(p):
+    ''' fbloqueaux : returnfunc fbloqueaux
+                   | estatuto fbloqueaux
+                   | LSTB
+    '''
+#####################################################
+# ESTATUTOS POSIBLES DENTRO DE LOS BLOQUES
+def p_estatuto(p):
+    ''' estatuto : asignacion
+                 | ifstat
+                 | escritura
+                 | lectura
+                 | llamada SEMICOLON
+                 | whileloop
+                 | forloop
+                 | var
+                 | counters
+                 | histf
+                 
+
+    '''
+#Hice un estatuto Auxiliar porque necesitaba encontrar una manera de que pudiera haber un loop en bloque sin meter un bracket izquierda
+def p_estatutoaux(p):
+    ''' estatutoaux : estatuto
+                    | estatutoaux estatuto
     '''
 
- ############################ Funciones especiales 
+########################################################################
+#### DECLARACION DE ASIGNACIÓN Y SUS CUADRUPLOS PARA VARIABLE NORMAL Y ARRAY
+
+
+#A la asignación de agregué que podría igualarse entre otras variables, se me hizo raro que no se pudiera
+def p_asignacion(p):
+    ''' asignacion : ID ID2LST EQUAL OP2LST superexpresion CuadruploAsignacion SEMICOLON
+                   | ID LFTBRACK ID RGTBRACK  EQUAL OP2LST superexpresion CuadruploAsignacionArr SEMICOLON
+
+    '''
+
+def p_CuadruploAsignacion(p):
+  'CuadruploAsignacion : '
+  ID = p[-5]
+  long = len(operadores)- 1 - ''.join(operadores).rfind("(")
+  if long > 0:
+    if operadores[len(operadores)-1] == '=' :
+      tmp1 = variables.pop()
+      tipo1 = getType(tmp1)
+      tipo2 = getType(ID)
+      operador = operadores.pop()
+      sintaxis = CuboSemRes(operador,tipo1, tipo2)
+      if sintaxis == 'error':
+        print("Error de semantica en ", ID)
+        exit()
+      cuadruplos.append(cuadruplo(len(cuadruplos), operador,getDir(tmp1), None , getDir(ID)))
+      variables.pop()
+
+def p_CuadruploAsignacionArr(p):
+  'CuadruploAsignacionArr : '
+  ID = p[-7]
+  if len(operadores)> 0:
+    if operadores[len(operadores)-1] == '=' :
+      tmp1 = variables.pop()
+      variable1 = getDir(tmp1) 
+      tipo1 = getType(tmp1)
+      tipo2 = getType(ID)
+      operador = operadores.pop()
+      sintaxis = CuboSemRes(operador,tipo1, tipo2)
+      if sintaxis == "error": 
+        exit()
+      cuadruplos.append(cuadruplo(len(cuadruplos), 'Ver' ,getDir("0"),getDir(getDim(p[-7].split('[')[0])), getDir(p[-5])))  
+      global contTemp
+      varTemp= "t" + str(contTemp)
+      variables.append(varTemp)
+      contTemp = contTemp + 1
+      tempDir = wheremep("int")
+      point = wheremec("int")
+      lstfunc[0].vars.append(variable(getDir(p[-7]),"int",point,None))
+      lstfunc[scope].vars.append(variable(varTemp, 'int', tempDir,None))
+      cuadruplos.append(cuadruplo(len(cuadruplos), 'ARR' ,point, getDir(p[-5]) ,getDir(varTemp)))
+      cuadruplos.append(cuadruplo(len(cuadruplos), '=',variable1, None ,  getDir(varTemp)))
+      variables.pop()
+
+
+
+#####################################################################
+########### DECLARACIÓN DE ESTATUTOS LÓGICOS CONDICIONALES
+
+
+
+def p_ifstat(p):
+    '''ifstat : IFS FSTP superexpresion LSTP Cuadgotofx fbloque updateJump ifstatx
+
+
+    '''
+def p_ifstatx(p):
+    '''ifstatx : CuadEndIfstat ELSES fbloque updateJump
+                | 
+
+    '''
+
+############## SECCION DE GOTO ##############
+def p_go2lst(p) :
+  'go2lst : '
+  saltos.append(len(cuadruplos))
+##################### CICLOS ########################
+
+def p_whileloop(p):
+    ''' whileloop : WHILE FSTP go2lst superexpresion LSTP Cuadgotofx bloque CuadEndLoop
+    '''
+
+def p_forloop(p):
+    ''' forloop : FOR FSTP ID LSTP TO FSTP cte LSTP go2lst CuadgotofFLoop  bloque CuadEndForLoop
+    '''
+
+def p_CuadEndLoop(p):
+  'CuadEndLoop : '
+  global tempSaltos
+  tempSaltos = saltos.pop()
+  cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTO', None, None ,saltos.pop()))
+  cuadruplos[tempSaltos].res = len(cuadruplos)
+  
+def p_CuadEndForLoop(p):
+  'CuadEndForLoop : '
+  global tempSaltos
+  tempSaltos = saltos.pop()
+  cuadruplos.append(cuadruplo(len(cuadruplos), '++', None, None ,getDir(p[-9]) ))
+  cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTO', None, None ,saltos.pop()))
+  cuadruplos[tempSaltos].res = len(cuadruplos)
+##################### Condicionales #####################
+saltos = []
+tempSaltos = 0
+
+
+def p_CuadgotofFLoop(p):
+  'CuadgotofFLoop : '
+  global tempSaltos
+  if len(variables) > 0:
+    saltos.append(len(cuadruplos))
+    contfl = variables.pop()
+    global contTemp
+    varTemp= "t" + str(contTemp)
+    variables.append(varTemp)
+    contTemp = contTemp + 1
+    tempDir = wheremep("bool")
+    lstfunc[scope].vars.append(variable(varTemp, 'bool', tempDir,None))
+    cuadruplos.append(cuadruplo(len(cuadruplos), '>', getDir(contfl), getDir(p[-7]) ,tempDir ))
+    cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTOF', tempDir, None ,None ))
+
+def p_Cuadgotof(p):
+  'Cuadgotof : '
+  global tempSaltos
+  if len(variables) > 0:
+    saltos.append(len(cuadruplos))
+    cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTOF', getDir(variables.pop()), None ,None ))
+
+def p_Cuadgotofx(p):
+  'Cuadgotofx : '
+  print("it me")
+  global tempSaltos
+  if len(variables) > 0:
+    saltos.append(len(cuadruplos))
+    cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTOF', getDir(variables.pop()), None ,None ))
+
+
+
+def p_CuadEndIfstat(p):
+  'CuadEndIfstat : '
+  cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTO', None, None ,None))
+  saltos.append(len(cuadruplos)-1)
+  cuadruplos[saltos.pop()].res = len(cuadruplos)
+
+
+def p_updateJump(p):
+  'updateJump :'
+  cuadruplos[saltos.pop()].res = len(cuadruplos)
+  
+#############################################
+###########################################
+####### LECTURA Y ESCRITURA
+def p_escritura(p):
+    ''' escritura : PRINT FSTP prints LSTP SEMICOLON
+
+    '''
+def p_prints(p):
+    ''' prints : superexpresion CuadruploPRINT
+                        | superexpresion CuadruploPRINT COMMA prints
+                        | cte CuadruploPRINT
+                        | cte CuadruploPRINT COMMA prints
+
+    '''
+def p_CuadruploPRINT(p):
+  'CuadruploPRINT : '
+  gonnaprint = getDir(variables.pop());
+  cuadruplos.append(cuadruplo(len(cuadruplos), "PRINT", None, None ,gonnaprint ))
+
+def p_lectura(p):
+    ''' lectura : INPUT FSTP ID reading LSTP SEMICOLON
+
+    '''
+def p_reading(p):
+    ''' reading :
+
+    '''
+    ID = p[-1]
+    localVars = list(map(lambda x: x.id ,lstfunc[scope].vars))
+    globalVars = list(map(lambda x: x.id ,lstfunc[1].vars))
+    if ID in localVars or ID in globalVars:
+      cuadruplos.append(cuadruplo(len(cuadruplos),"READ", None ,None, getDir(ID)))
+      
+    else:
+      print("Variable no definida '%s'" % ID)
+      exit()
+#necesitamos de este prints para seguir concatenando
+
+#########################################################################
+
+
+## Cosas para la symtable
+
+def p_func2list(p):
+  'func2list :'
+  global scope
+  if p[-2] != "void":
+    lstfunc.append(funcion(p[-1],p[-2],len(cuadruplos)))
+    vmem = whereme(p[-2])
+    lstfunc[1].vars.append(variable(p[-1], p[-2], vmem,None))
+    scope = len(lstfunc)-1
+  else:
+    lstfunc.append(funcion(p[-1],p[-2],len(cuadruplos)))
+    lstfunc[1].vars.append(variable(p[-1], p[-2], "void",None))
+    scope = len(lstfunc)-1
+
+
+#########################################################################
+
+############################ 
+###    Funciones especiales 
 
 def p_specialfunc(p):
     ''' specialfunc : meanf
                     | modef
                     | medianf
                     | sdf
-                    | variancef        
+                    | variancef 
+                    | randf       
     '''
 ### mean
 def p_meanf(p):
@@ -600,6 +772,72 @@ def p_variancecuad(p):
       print("variable no es un array de enteros o flotantes")
       exit()
 
+def p_histf(p):
+    ''' histf : HIST FSTP ID LSTP histcuad SEMICOLON       
+    '''
+def p_histcuad(p):
+    'histcuad : '
+    if  isinstance(int(getDim(p[-2])), int) and (getType(p[-2]) == 'int' or getType(p[-2]) == 'float' ):
+      cuadruplos.append(cuadruplo(len(cuadruplos),"HIST", getDir(p[-2]) ,int(getDim(p[-2])),None ))
+    else: 
+      print("variable no es un array de enteros o flotantes")
+      exit()
+
+def p_randf(p):
+    ''' randf : RANDOMF FSTP CTEINT COMMA CTEINT LSTP randcuad        
+    '''
+def p_randcuad(p):
+    'randcuad : '
+    print(p[-2])
+    if  isinstance(int(p[-2]), int) and isinstance(int(p[-4]), int):
+      global contTemp
+      newvar = "t" + str(contTemp)
+      contTemp +=1
+      tipaje = wheremet('int')
+      lstfunc[scope].vars.append(variable( newvar, 'int',tipaje,None))
+      cuadruplos.append(cuadruplo(len(cuadruplos),"RAND", int(p[-4]) ,int(p[-2]), getDir(newvar)))
+      variables.append(newvar)
+    else: 
+      print("Los parametros solo aceptan ENTEROS")
+      exit()
+
+
+
+################################################################
+### CONTADORES
+def p_counters(p):
+    ''' counters : ID ONEUP cuadcount SEMICOLON
+                  | ID ONEDOWN cuadcount SEMICOLON
+    '''
+
+def p_cuadcount(p):
+    ''' cuadcount :
+    '''
+    if getType(p[-2]) == 'int' or  getType(p[-2]) == 'float':
+      cuadruplos.append(cuadruplo(len(cuadruplos),p[-1],None,None,getDir(p[-2]) ))
+    else:
+      print("no puedes usar contadores en variables no numericas")
+      exit()
+###############################################################
+################# EXPRESIONES
+def p_superexpresion(p):
+    ''' superexpresion : expresion
+                | expresion ANDOP OP2LST superexpresion CuadruploAndOr
+                | expresion OROP OP2LST superexpresion CuadruploAndOr
+                | counters
+    '''
+def p_expresion(p):
+    ''' expresion : exp
+                | exp GTR OP2LST exp CuadruploBools
+                | exp LST OP2LST exp CuadruploBools
+                | exp DIFFERENT OP2LST exp CuadruploBools
+                | exp ISEQUAL OP2LST exp CuadruploBools
+                | exp LESSEQUAL OP2LST exp CuadruploBools
+                | exp GREATEQUAL OP2LST exp CuadruploBools
+                
+    '''
+
+
 def p_exp(p):
     ''' exp : termino CuadruploSumaResta
             | termino CuadruploSumaResta expaux
@@ -639,6 +877,10 @@ def p_cte(p):
     '''
     
 ##########################################################################
+#### 
+
+#####################
+##### LÓGICA DE RETURN Y PARAMETROS
 
 def p_returnfunc(p):
     ''' returnfunc : RETURNF FSTP returnfuncaux
@@ -655,11 +897,29 @@ def p_llamadaaux(p):
                   | COMMA superexpresion sendParam llamadaaux
                   | LSTP gosub
     '''
+numParam = 1
 
 def p_params2lst(p):
     ''' params2lst :
     '''
     lstfunc[scope].plist.append(p[-3])
+
+
+def p_sendParam(p):
+  'sendParam : '
+  global numParam
+  if numParam-1 < len(lstfunc[indx].plist):
+    actparam = variables.pop()
+    if getType(actparam) == lstfunc[indx].plist[numParam-1]:
+      varTemp = "p" + str(numParam)
+      cuadruplos.append(cuadruplo(len(cuadruplos), "Params",getDir(actparam), None , varTemp))
+      numParam += 1
+    else: 
+      print("LOS TIPOS DE VARIABLES NO SON LOS MISMOS QUE LOS PARAMETROS")
+      exit()
+  else:
+      print("numero incorrecto de variables")
+      exit()
 
 
 def p_ENDFunc(p):
@@ -725,7 +985,7 @@ def p_error(p):
     print(p)
     print("Error de sintaxis en '%s'" % p.value)
     exit()
-## Funciones auxiliares para meter las cosas a sus respectivos stacksssssssssss
+################### Funciones auxiliares para meter las cosas a sus respectivos stacksssssssssss (listas)
 
 
 def p_SZ2LST(p):
@@ -740,6 +1000,15 @@ def p_INT2LST(p):
   lstfunc[0].vars.append(variable(p[-1], 'int', wheremec('int'),None))
   p[0] = p[-1]
   holder = p[-1]
+
+def p_CHAR2LST(p):
+  'CHAR2LST :'
+  global holder
+  variables.append(p[-1])
+  lstfunc[0].vars.append(variable(p[-1], 'int', wheremec('char'),None))
+  p[0] = p[-1]
+  holder = p[-1]
+
 
 def p_FLT2LST(p):
   'FLT2LST :'
@@ -779,179 +1048,26 @@ def p_ARR2LST(p):
 
 
 #Cuadrulos
+################# DIRECTORIO DE FUNCIONES
 lstfunc = [funcion('const',None,0),funcion('globales',None,0)]
+################ DIRECTORIO DE CUADRUPLOS
 cuadruplos = [cuadruplo(0,"GOTO","MAIN",None,None)]
-tipos =      []
+################ LISTAS PARA LLEVAR LAS VARIABLES Y OPERADORES
+
 variables =  []
 operadores = []
+############# ESTA ME AYUDA A TRAER LAS VARIABLES TEMPORALES
 contTemp = 1
-params = []
 
+######################## AQUI VAN LAS CONSTANTES
 lstfunc[0].vars.append(variable("0",'int', wheremec("int"),None))
-############## SECCION DE GOTO ##############
-def p_go2lst(p) :
-  'go2lst : '
-  saltos.append(len(cuadruplos))
-##################### CICLOS ########################
-
-def p_whileloop(p):
-    ''' whileloop : WHILE FSTP go2lst superexpresion LSTP Cuadgotofx bloque CuadEndLoop
-    '''
-
-def p_forloop(p):
-    ''' forloop : FOR FSTP ID LSTP TO FSTP cte LSTP go2lst CuadgotofFLoop  bloque CuadEndForLoop
-    '''
-
-def p_CuadEndLoop(p):
-  'CuadEndLoop : '
-  global tempSaltos
-  tempSaltos = saltos.pop()
-  cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTO', None, None ,saltos.pop()))
-  cuadruplos[tempSaltos].res = len(cuadruplos)
-  
-def p_CuadEndForLoop(p):
-  'CuadEndForLoop : '
-  global tempSaltos
-  tempSaltos = saltos.pop()
-  cuadruplos.append(cuadruplo(len(cuadruplos), '++', None, None ,getDir(p[-9]) ))
-  cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTO', None, None ,saltos.pop()))
-  cuadruplos[tempSaltos].res = len(cuadruplos)
-##################### Condicionales #####################
-saltos = []
-tempSaltos = 0
-
-
-def p_CuadgotofFLoop(p):
-  'CuadgotofFLoop : '
-  global tempSaltos
-  if len(variables) > 0:
-    saltos.append(len(cuadruplos))
-    contfl = variables.pop()
-    global contTemp
-    varTemp= "t" + str(contTemp)
-    variables.append(varTemp)
-    contTemp = contTemp + 1
-    tempDir = wheremep("bool")
-    lstfunc[scope].vars.append(variable(varTemp, 'bool', tempDir,None))
-    cuadruplos.append(cuadruplo(len(cuadruplos), '>', getDir(contfl), getDir(p[-7]) ,tempDir ))
-    cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTOF', tempDir, None ,None ))
-
-def p_Cuadgotof(p):
-  'Cuadgotof : '
-  global tempSaltos
-  if len(variables) > 0:
-    saltos.append(len(cuadruplos))
-    cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTOF', getDir(variables.pop()), None ,None ))
-
-def p_Cuadgotofx(p):
-  'Cuadgotofx : '
-  print("it me")
-  global tempSaltos
-  if len(variables) > 0:
-    print("gotofx estoy haciendo append a:", len(cuadruplos))
-    saltos.append(len(cuadruplos))
-    cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTOF', getDir(variables.pop()), None ,None ))
-
-
-
-def p_CuadEndIfstat(p):
-  'CuadEndIfstat : '
-  cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTO', None, None ,None))
-  saltos.append(len(cuadruplos)-1)
-  cuadruplos[saltos.pop()].res = len(cuadruplos)
-
-
-def p_updateJump(p):
-  'updateJump :'
-  cuadruplos[saltos.pop()].res = len(cuadruplos)
-  
-#############################################
-def getType(ID):
-  varLocales = list(map(lambda x: x.id ,lstfunc[scope].vars))
-  varGlobales = list(map(lambda x: x.id ,lstfunc[1].vars))
-  varConstant = list(map(lambda x: x.id ,lstfunc[0].vars))
-  if ID in varLocales:
-    idx = varLocales.index(ID)
-    return lstfunc[scope].vars[idx].tipo
-  elif ID in varGlobales:
-    idx = varGlobales.index(ID)
-    return lstfunc[1].vars[idx].tipo
-  elif ID in varConstant:
-    idT = varConstant.index(ID)
-    return lstfunc[0].vars[idT].tipo
-  print("ERROR: variable '", ID, "' no definida")
-  exit()
-
-def getDir(ID):
-    varLocales = list(map(lambda x: x.id ,lstfunc[scope].vars))
-    varGlobales = list(map(lambda x: x.id ,lstfunc[1].vars))
-    varConstant = list(map(lambda x: x.id ,lstfunc[0].vars))
-    if ID in varLocales:
-      idx = varLocales.index(ID)
-      return lstfunc[scope].vars[idx].dir
-    elif ID in varGlobales:
-      idx = varGlobales.index(ID)
-      return lstfunc[1].vars[idx].dir
-    elif ID in varConstant:
-      idT = varConstant.index(ID)
-      return lstfunc[0].vars[idT].dir
-    print("ERROR: variable '", ID, "' no definida")
-    exit()
-
-
-def p_CuadruploAsignacion(p):
-  'CuadruploAsignacion : '
-  ID = p[-5]
-  long = len(operadores)- 1 - ''.join(operadores).rfind("(")
-  if long > 0:
-    if operadores[len(operadores)-1] == '=' :
-      tmp1 = variables.pop()
-      tipo1 = getType(tmp1)
-      tipo2 = getType(ID)
-      operador = operadores.pop()
-      sintaxis = CuboSemRes(operador,tipo1, tipo2)
-      if sintaxis == 'error':
-        print("Error de semantica en ", ID)
-        exit()
-      cuadruplos.append(cuadruplo(len(cuadruplos), operador,getDir(tmp1), None , getDir(ID)))
-      variables.pop()
-
-def p_CuadruploAsignacionArr(p):
-  'CuadruploAsignacionArr : '
-  ID = p[-7]
-  if len(operadores)> 0:
-    if operadores[len(operadores)-1] == '=' :
-      tmp1 = variables.pop()
-      variable1 = getDir(tmp1) 
-      tipo1 = getType(tmp1)
-      tipo2 = getType(ID)
-      operador = operadores.pop()
-      sintaxis = CuboSemRes(operador,tipo1, tipo2)
-      if sintaxis == "error": 
-        exit()
-      cuadruplos.append(cuadruplo(len(cuadruplos), 'Ver' ,getDir("0"),getDir(getDim(p[-7].split('[')[0])), getDir(p[-5])))  
-      global contTemp
-      varTemp= "t" + str(contTemp)
-      variables.append(varTemp)
-      contTemp = contTemp + 1
-      tempDir = wheremep("int")
-      point = wheremec("int")
-      lstfunc[0].vars.append(variable(getDir(p[-7]),"int",point,None))
-      lstfunc[scope].vars.append(variable(varTemp, 'int', tempDir,None))
-      cuadruplos.append(cuadruplo(len(cuadruplos), 'ARR' ,point, getDir(p[-5]) ,getDir(varTemp)))
-      cuadruplos.append(cuadruplo(len(cuadruplos), '=',variable1, None ,  getDir(varTemp)))
-      variables.pop()
 
 
 
 
+##########################################################
+### CUADRUPLOS PARA OPERACIONES ARITMETICAS Y BOOLEANAS
 
-
-
-def p_CuadruploPRINT(p):
-  'CuadruploPRINT : '
-  gonnaprint = getDir(variables.pop());
-  cuadruplos.append(cuadruplo(len(cuadruplos), "PRINT", None, None ,gonnaprint ))
 
 def p_CuadruploMultDiv(p):
   'CuadruploMultDiv :'
@@ -1053,7 +1169,7 @@ def p_CuadruploAndOr(p):
       cuadruplos.append(cuadruplo(len(cuadruplos), operador, izquierda, derecho , tmpdir))
       variables.append(varTemp)
       contTemp = contTemp + 1
-
+###########################################################
 #Aquí formamos el parser
 
 yacc.yacc()
@@ -1120,15 +1236,21 @@ print(operadores)
 print("\n")
 print("------------------------------------------------------------------------")
 print(saltos)
+print("CONSTANTES")
 print(list(map(lambda x: x.id ,lstfunc[0].vars)))
+print("GLOBALES")
 print(list(map(lambda x: x.id ,lstfunc[1].vars)))
+print("LOCALES")
 print(list(map(lambda x: x.id ,lstfunc[2].vars)))
 #print(list(map(lambda x: x.id ,lstfunc[3].vars)))
 print("------------------------------------------------------------------------")
 print("------------------------------------------------------------------------")
 print("tempDircciones de variables por scope")
+print("CONSTANTES")
 print(list(map(lambda x: x.dir ,lstfunc[0].vars)))
+print("GLOBALES")
 print(list(map(lambda x: x.dir ,lstfunc[1].vars)))
+print("LOCALES")
 print(list(map(lambda x: x.dir ,lstfunc[2].vars)))
 #print(list(map(lambda x: x.dir ,lstfunc[3].vars)))
 print("------------------------------------------------------------------------")
