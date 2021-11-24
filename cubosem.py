@@ -5,35 +5,24 @@ cubosem = {
 			'float' : 'float',
 			'bool' 	: 'error',
 			'char' 	: 'error',
-			'string': 'error'
 		},
 		'char' : {
 			'int' 	: 'error',
 			'float' : 'error',
 			'bool' 	: 'error',
 			'char' 	: 'error',
-			'string': 'error'
 		},
 		'bool' : {
 			'int' 	: 'error',
 			'float' : 'error',
 			'bool' 	: 'error',
 			'char' 	: 'error',
-			'string': 'error'
 		},
 		'float' : {
 			'int' : 'float',
 			'float' : 'float',
 			'bool' : 'error',
 			'char' : 'error',
-			'string' : 'error'
-		},
-		'string' : {
-			'int' : 'error',
-			'float' : 'error',
-			'bool' : 'error',
-			'char' : 'string',
-			'string' : 'string'
 		}
 	},
 
@@ -43,35 +32,24 @@ cubosem = {
 			'char' 	: 'error',
 			'bool' 	: 'error',
 			'float' : 'float',
-			'string': 'error'
 		},
 		'char' : {
 			'int' 	: 'error',
 			'char' 	: 'error',
 			'bool' 	: 'error',
 			'float' : 'error',
-			'string': 'error'
 		},
 		'bool' : {
 			'int' 	: 'error',
 			'char' 	: 'error',
 			'bool' 	: 'error',
 			'float' : 'error',
-			'string': 'error'
 		},
 		'float' : {
 			'int' : 'float',
 			'float' : 'float',
 			'char' : 'error',
-			'bool' : 'error',
-			'string' : 'error'
-		},
-		'string' : {
-			'int' : 'error',
-			'char' : 'error',
-			'bool' : 'error',
-			'float' : 'error',
-			'string' : 'error'
+			'bool' : 'error'
 		}
 	},
 
@@ -80,36 +58,26 @@ cubosem = {
 			'int' 	: 'int',
 			'float' : 'float',
 			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+			'char' 	: 'error'
 		},
 		'char' : {
 			'int' 	: 'error',
 			'float' : 'error',
 			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+			'char' 	: 'error'
 		},
 		'bool' : {
 			'int' 	: 'error',
 			'float' : 'error',
 			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+			'char' 	: 'error'
 		},
 		'float' : {
 			'int' 	: 'float',
 			'float' : 'float',
 			'bool' 	: 'error',
 			'char' 	: 'error',
-			'string': 'error'
-		},
-		'string' : {
-			'int' 	: 'error',
-			'float' : 'error',
-			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+
 		}
 	},
 
@@ -118,36 +86,25 @@ cubosem = {
 			'int' 	: 'int',
 			'float' : 'float',
 			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+			'char' 	: 'error'
 		},
 		'char' : {
 			'int' 	: 'error',
 			'float' : 'error',
 			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+			'char' 	: 'error'
 		},
 		'bool' : {
 			'int' 	: 'error',
 			'float' : 'error',
 			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+			'char' 	: 'error'
 		},
 		'float' : {
 			'int' 	: 'float',
 			'float' : 'float',
 			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
-		},
-		'string' : {
-			'int' 	: 'error',
-			'float' : 'error',
-			'bool' 	: 'error',
-			'char' 	: 'error',
-			'string': 'error'
+			'char' 	: 'error'
 		}
 	},
 
@@ -156,36 +113,25 @@ cubosem = {
 			'int' : 'int',
 			'float' : 'int',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'float' : {
 			'int' : 'float',
 			'float' : 'float',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'bool' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'bool',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'char' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'error',
-			'char' : 'char',
-			'string' : 'error'
-		},
-		'string' : {
-			'int' : 'error',
-			'float' : 'error',
-			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'string'
+			'char' : 'char'
 		}
 	},
 
@@ -194,36 +140,25 @@ cubosem = {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'float' : {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'bop',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'bool' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'bool',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'char' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'error',
-				'char' : 'bool',
-				'string' : 'error'
-			},
-			'string' : {
-				'int' : 'error',
-				'float' : 'error',
-				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'string'
+				'char' : 'bool'
 			}
 		},
 
@@ -232,36 +167,25 @@ cubosem = {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'float' : {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'bop',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'bool' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'bool',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'char' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'error',
-				'char' : 'bool',
-				'string' : 'error'
-			},
-			'string' : {
-				'int' : 'error',
-				'float' : 'error',
-				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'string'
+				'char' : 'bool'
 			}
 		},
 
@@ -284,22 +208,13 @@ cubosem = {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'bool',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'char' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'error',
-				'char' : 'bool',
-				'string' : 'error'
-			},
-			'string' : {
-				'int' : 'error',
-				'float' : 'error',
-				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'string'
+				'char' : 'bool'
 			}
 		},
 
@@ -308,36 +223,25 @@ cubosem = {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'float' : {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'bop',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'bool' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'bool',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'char' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'error',
-				'char' : 'bool',
-				'string' : 'error'
-			},
-			'string' : {
-				'int' : 'error',
-				'float' : 'error',
-				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'string'
+				'char' : 'bool'
 			}
 		},
 
@@ -346,36 +250,25 @@ cubosem = {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'float' : {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'bop',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'bool' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'bool',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'char' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'error',
-				'char' : 'bool',
-				'string' : 'error'
-			},
-			'string' : {
-				'int' : 'error',
-				'float' : 'error',
-				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'string'
+				'char' : 'bool'
 			}
 		},
 
@@ -384,36 +277,25 @@ cubosem = {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'float' : {
 				'int' : 'bool',
 				'float' : 'bool',
 				'bool' : 'bop',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'bool' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'bool',
-				'char' : 'error',
-				'string' : 'error'
+				'char' : 'error'
 			},
 			'char' : {
 				'int' : 'error',
 				'float' : 'error',
 				'bool' : 'error',
-				'char' : 'bool',
-				'string' : 'error'
-			},
-			'string' : {
-				'int' : 'error',
-				'float' : 'error',
-				'bool' : 'error',
-				'char' : 'error',
-				'string' : 'string'
+				'char' : 'bool'
 			}
 		},
 
@@ -422,36 +304,25 @@ cubosem = {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'char' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'bool' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'bool',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'float' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
-		},
-		'string' : {
-			'int' : 'error',
-			'float' : 'error',
-			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		}
 	},
 
@@ -460,36 +331,25 @@ cubosem = {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'char' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'bool' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'bool',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 		'float' : {
 			'int' : 'error',
 			'float' : 'error',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
-		},
-		'string' : {
-			'int' : 'error',
-			'float' : 'error',
-			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		}
 	},
 
@@ -500,16 +360,14 @@ cubosemCont = {
 			'int' : 'int',
 			'float' : 'float',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		},
 
 	'--' : {
 			'int' : 'int',
 			'float' : 'float',
 			'bool' : 'error',
-			'char' : 'error',
-			'string' : 'error'
+			'char' : 'error'
 		}
 	}
 
