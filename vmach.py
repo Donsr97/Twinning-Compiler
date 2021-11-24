@@ -2,7 +2,8 @@ import sys
 from toolfncs import *
 from vmem import *
 import statistics as st
-
+import random
+from matplotlib import pyplot as plt
 
 
 class vmach():
@@ -11,14 +12,22 @@ class vmach():
         self.cuadruplos = cuadruplos
         self.parametros = []
         self.indx = 0
+#####################
+### Migajita para encontrar el cuadruplo en el que nos quedamos al entrar en una función
+
         self.migajita = []
+####################
+#### Esta lista nos ayuda a dormir la memoria temporal
         self.sleeploc = []
+####################
+#### Esta lista nos ayuda a dormir la memoria temporal
         self.sleeptemp = []
+
         self.direccionRegreso = []
-        self.memoriamaster = vmem()
+        self.memoriaprincipal = vmem()
         for i in range(0,len(self.funclst)):
-            self.memoriamaster.initVar(self.funclst[i])
-        self.mem = self.memoriamaster
+            self.memoriaprincipal.initVar(self.funclst[i])
+        self.mem = self.memoriaprincipal
         self.recieveParam(self.mem)
 
 
@@ -110,8 +119,8 @@ class vmach():
         self.sleeptemp.append(self.mem.tVMem)
         self.sleeploc.append(self.mem.lVMem)
         self.mem = vmem()
-        self.mem.cVMem = self.memoriamaster.cVMem
-        self.mem.gVMem = self.memoriamaster.gVMem
+        self.mem.cVMem = self.memoriaprincipal.cVMem
+        self.mem.gVMem = self.memoriaprincipal.gVMem
         self.mem.initVar(self.funclst[indx])
         self.recieveParam(self.mem)
         self.Exe(begin,'ENDFunc')
@@ -126,6 +135,12 @@ class vmach():
           print(mem.getValue(value))
         else: 
           print(value)
+
+    def leer(self,cuadrup,mem):
+        valor = input("Leyendo:")
+        if cuadrup.res < 13999:
+          mem.updateValue(valor,cuadrup.res)
+        else: mem.updateValue(valor,mem.getValue(cuadrup.res))
 
     def division(self,cuadrup,mem):     
         var2 = mem.getValue(cuadrup.var2)
@@ -171,7 +186,7 @@ class vmach():
 
     def sendParam(self,cuadrup,mem):
         valor = mem.getValue(cuadrup.var1)
-        tipo = mem.sacarType(cuadrup.var1)
+        tipo = mem.getType(cuadrup.var1)
         parametro = params(valor,tipo)
         self.parametros.append(parametro)
 
@@ -209,8 +224,20 @@ class vmach():
       value = st.variance(lst)
       mem.updateValue(value,cuadrup.res)
 
+    def random(self,cuadrup,mem):
+      value = random.randint(cuadrup.var1, cuadrup.var2)
+      mem.updateValue(value,cuadrup.res)
+
+    def hist(self,cuadrup,mem):
+      lst = []
+      for x in range(cuadrup.var2):
+        lst.append(mem.getValue(cuadrup.var1+x+1))
+      print("hola", lst)
+      value = st.variance(lst)
+      plt.hist(lst, 10)
+      plt.show()
+
     def recieveParam(self, mem):
-        self.parametros.reverse()
         cInt = 0
         cFloat = 0
         cBool = 0
@@ -235,8 +262,8 @@ class vmach():
 
 
     def Exe(self, inicio, fin):
-        self.memoriamaster.cVMem = self.mem.cVMem
-        self.memoriamaster.gVMem = self.mem.gVMem
+        self.memoriaprincipal.cVMem = self.mem.cVMem
+        self.memoriaprincipal.gVMem = self.mem.gVMem
         self.indx = inicio
         while self.cuadruplos[self.indx].estatuto != fin:
             cuadruplonow = self.cuadruplos[self.indx]
@@ -247,6 +274,8 @@ class vmach():
                 self.signoIgual(cuadruplonow, self.mem)
             elif estatuto == 'PRINT':
                 self.imprime(cuadruplonow, self.mem)
+            elif estatuto == 'READ':
+                self.leer(cuadruplonow, self.mem)
             elif estatuto == '++' or estatuto == '--':
                 self.contadores(cuadruplonow,self.mem)
             elif estatuto == '+' or estatuto == '-' or estatuto == '*':
@@ -281,9 +310,12 @@ class vmach():
                 self.sd(cuadruplonow,self.mem)
             elif estatuto == 'VARIANCE':
                 self.variance(cuadruplonow,self.mem)
+            elif estatuto == 'RAND':
+                self.random(cuadruplonow,self.mem)
+            elif estatuto == 'HIST':
+                self.hist(cuadruplonow,self.mem)
             else:
-                print('ERROR, cuadruplo no acceptado: ')
-                print(cuadruplonow.estatuto)
+                print('ERROR: Cuadruplo no identificado.', cuadruplonow.estatuto)
                 exit()
             self.indx = self.indx + 1
-        #self.memoriamaster.printvm()
+        #self.memoriaprincipal.printvm()
