@@ -1,0 +1,21 @@
+program ola; 
+
+main{
+
+int arr[100];
+int count;
+ count = 0;
+ while(count<100){
+   arr[count] = rand(1,100);
+   count++;
+ }
+print(variance(arr));
+print(mean(arr));
+print(median(arr));
+print(mode(arr));
+print(sd(arr));
+print("hola mundo");
+hist(arr);
+
+}
+
