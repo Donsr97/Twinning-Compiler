@@ -1,0 +1,16 @@
+program ola; 
+
+def int factorialrec(int n){
+  if(n<=1){
+    return(1);
+  }
+  int x;
+  x = factorialrec(n-1);
+  return(n*x);
+}
+
+
+main{
+  
+  print(factorialrec(6));
+}
