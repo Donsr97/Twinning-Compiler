@@ -30,7 +30,7 @@ class memVal():
 ### se usa la variable base y la variable que se le mandó como parametro
 ### se resta la base con el parametro y se obtiene la casilla con el valor
     def getValue(self,dir):
-        #print(dir,self.BaseIntMem, self.intHolder)
+    #    print(dir,self.BaseIntMem,self.BaseIntMem)
         if dir < self.BaseFloatMem:
             return self.intHolder[dir-self.BaseIntMem]
         elif dir < self.BaseBoolMem:
@@ -54,7 +54,7 @@ class memVal():
 ###### Actualiza el valor de la casilla
 ###### de la misma manera en que se obtiene el valor
     def updateValue(self,value,dir):
-        #print(dir,self.BaseIntMem,self.intHolder)
+       # print(dir,self.BaseIntMem,value)
         if dir < self.BaseFloatMem:
             if len(self.intHolder) > dir-self.BaseIntMem:
                 self.intHolder[dir-self.BaseIntMem] = int(value)
