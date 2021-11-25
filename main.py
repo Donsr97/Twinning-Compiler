@@ -44,7 +44,7 @@ ptbool  = 17000
 #         LÓGICA DE ASIGNACIÓN DE MEMORIA EN COMPILACIÓN
 
 def cleanlmemory():
-  global  lvint,lvfloat,lvchar,tvint,tvfloat,tvchar,cint,cfloat,cchar,cbool,tvbool,lvbool, contTemp
+  global  lvint,lvfloat,lvchar,tvint,tvfloat,tvchar,cint,cfloat,cchar,cbool,tvbool,lvbool, contTemp, ptint, ptfloat,ptchar,ptbool
   tvint   = 6000 
   tvfloat = 7000
   tvchar  = 8000
@@ -53,6 +53,10 @@ def cleanlmemory():
   lvfloat = 4000
   lvchar  = 4500
   lvbool  = 5000
+  ptint = 14000
+  ptfloat = 15000
+  ptchar = 16000
+  ptbool = 17000
   contTemp = 1
 
 conta = 1
@@ -539,13 +543,13 @@ def p_CuadruploAsignacionArr(p):
 
 
 def p_ifstat(p):
-    '''ifstat : IFS FSTP superexpresion LSTP Cuadgotofx fbloque updateJump ifstatx
+    '''ifstat : IFS FSTP superexpresion LSTP Cuadgotofx fbloque ifstatx  
 
 
     '''
 def p_ifstatx(p):
-    '''ifstatx : CuadEndIfstat ELSES fbloque updateJump
-                | 
+    '''ifstatx : updateJumps CuadEndIfstat ELSES fbloque updateJump
+               | updateJump
 
     '''
 
@@ -617,14 +621,21 @@ def p_Cuadgotofx(p):
 def p_CuadEndIfstat(p):
   'CuadEndIfstat : '
   cuadruplos.append(cuadruplo(len(cuadruplos), 'GOTO', None, None ,None))
-  saltos.append(len(cuadruplos)-1)
+  print(len(cuadruplos))
   cuadruplos[saltos.pop()].res = len(cuadruplos)
+  saltos.append(len(cuadruplos)-1)
 
 
 def p_updateJump(p):
   'updateJump :'
   cuadruplos[saltos.pop()].res = len(cuadruplos)
+  print("llegue una vez")
   
+def p_updateJumps(p):
+  'updateJumps :'
+  cuadruplos[saltos.pop()].res = len(cuadruplos)+1
+  saltos.append(len(cuadruplos))
+  print("llegue una vez")
 #############################################
 ###########################################
 ####### LECTURA Y ESCRITURA
@@ -641,8 +652,12 @@ def p_prints(p):
     '''
 def p_CuadruploPRINT(p):
   'CuadruploPRINT : '
-  gonnaprint = getDir(variables.pop());
-  cuadruplos.append(cuadruplo(len(cuadruplos), "PRINT", None, None ,gonnaprint ))
+  print(holder)
+  if '\"' in holder :
+    cuadruplos.append(cuadruplo(len(cuadruplos), "PRINT", None, None ,holder ))
+  else:
+    gonnaprint = getDir(variables.pop());
+    cuadruplos.append(cuadruplo(len(cuadruplos), "PRINT", None, None ,gonnaprint ))
 
 def p_lectura(p):
     ''' lectura : INPUT FSTP ID reading LSTP SEMICOLON
@@ -870,12 +885,13 @@ def p_cte(p):
             | CTEFLOAT FLT2LST
             | CTEINT INT2LST
             | CTECHAR
-            | STRING
+            | STRING hold
             | llamada
             | ID LFTBRACK ID RGTBRACK  ARR2LST
             | specialfunc
     '''
-    
+
+holder = ''
 ##########################################################################
 #### 
 
@@ -986,7 +1002,10 @@ def p_error(p):
     print("Error de sintaxis en '%s'" % p.value)
     exit()
 ################### Funciones auxiliares para meter las cosas a sus respectivos stacksssssssssss (listas)
-
+def p_hold(p):
+  'hold :'
+  global holder
+  holder  = p[-1]
 
 def p_SZ2LST(p):
   'SZ2LST :'
@@ -1098,8 +1117,6 @@ def p_CuadruploMultDiv(p):
 def p_CuadruploSumaResta(p):
   'CuadruploSumaResta :'
   tipores = CuboSemRes("+", "int", "int")
-
-
   long = len(operadores)- 1 - ''.join(operadores).rfind("(")
   if long > 0:
     global contTemp
@@ -1212,7 +1229,7 @@ def getID(ID):
 
 
 try:
-    namef = "p1.txt"
+    namef = "p5.txt"
     file = open(namef,'r')
     test = file.read()
     file.close()
