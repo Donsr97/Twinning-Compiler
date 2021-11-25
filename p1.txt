@@ -1,32 +1,5 @@
 program ola; 
 
-def int find(int n){
-  int a, int b,int c, int d, int f,int cont, int arr[5];
-  a = 0;
-  b = 1;
-  c = 2;
-  d = 3;
-  f = 4;
-  f = 4;
-  f = 4;
-  f = 4;
-  f = 4;
-  cont = 0;
-  arr[a] = 3;
-  arr[b] = 2;
-  arr[c] = 5;
-  arr[d] = 4;
-  arr[f] = 1;
-  while(cont<5){
-    arr[c] = 5;
-    arr[c] = 5;
-    if(arr[cont] == n){
-     return(cont);
-    }
-    cont++;
-  }
-  return(0-1);
-}
 
 def void sort(){
 int a, int b,int c, int d, int f,int cont,int cont2, int arr[5];
@@ -60,8 +33,6 @@ int a, int b,int c, int d, int f,int cont,int cont2, int arr[5];
    cont++;
     }
   
-  
-  
   cont = 0;
 
     while(cont<5){
@@ -70,11 +41,6 @@ int a, int b,int c, int d, int f,int cont,int cont2, int arr[5];
     }
 }
 
-
-
-
 main{
-
-  
  sort();
 }
