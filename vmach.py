@@ -3,6 +3,8 @@ from toolfncs import *
 from vmem import *
 import statistics as st
 import random
+import re
+
 from matplotlib import pyplot as plt
 
 
@@ -22,22 +24,24 @@ class vmach():
 ####################
 #### Esta lista nos ayuda a dormir la memoria temporal
         self.sleeptemp = []
-
+#####################
+### Lista para las direcciones de return por funcion
         self.direccionRegreso = []
+###################
+#### Aquí se inicializa la memoria
         self.memoriaprincipal = vmem()
         for i in range(0,len(self.funclst)):
             self.memoriaprincipal.initVar(self.funclst[i])
         self.mem = self.memoriaprincipal
         self.recieveParam(self.mem)
 
-
+############# Operaciones aritmeticas, reciben un cuadruplo y memoria actual
     def operaciones(self,cuadrup,mem):
         var1 = mem.getValue(cuadrup.var1)
         var2 = mem.getValue(cuadrup.var2)
         res = cuadrup.res
         estatuto = cuadrup.estatuto
         if cuadrup.var1 >13999:
-          print(cuadrup.var1)
           var1 = mem.getValue(var1)
         if cuadrup.var2 >13999:
           var2 = mem.getValue(var2)
@@ -47,8 +51,18 @@ class vmach():
             valor = var1 - var2
         elif estatuto == '*':
             valor = var1 * var2
+        elif estatuto == '/':
+          var2 = mem.getValue(cuadrup.var2)
+          if(var2 == 0):
+              print('ERROR ARITMETICO: No se puede dividir entre 0!!!')
+              quit()
+          else:
+              var1 = mem.getValue(cuadrup.var1)
+              res = cuadrup.res
+              valor = var1 / var2
         mem.updateValue(valor,res)
-
+####################################
+### contadores,  reciben un cuadruplo y memoria actual
     def contadores(self,cuadrup,mem):
         var1 = mem.getValue(cuadrup.res)
         estatuto = cuadrup.estatuto
@@ -59,7 +73,8 @@ class vmach():
         elif estatuto == '--':
             valor = var1 - 1
         mem.updateValue(valor,cuadrup.res)
-        
+####################################
+### asignación,  recibe un cuadruplo y memoria actual
     def signoIgual(self,cuadrup,mem):
         #print("holaaaaa",mem.getValue(cuadrup.var1),  mem.getValue(cuadrup.res))
         if int(cuadrup.res) >= 14000:
@@ -75,8 +90,9 @@ class vmach():
             dir = cuadrup.res
             mem.updateValue(valor, dir)
 
-   
-    def operacionesLogic(self,cuadrup,mem):
+  ####################################
+  ########## Operaciones booleanas. reciben un cuadruplo y memoria actual 
+    def opBool(self,cuadrup,mem):
         var1 = mem.getValue(cuadrup.var1)
         var2 = mem.getValue(cuadrup.var2)
         res = cuadrup.res
@@ -110,6 +126,8 @@ class vmach():
         var1 = self.mem.getValue(cuadrup.var1)
         if not var1:
             self.indx = cuadrup.res-1
+######
+#### Aqui se duerme la memoria local y temporal, luego se genera una nueva, se crea otra instancia de la máquina para ejecutar la función, y luego se despierta la memoria anterior. Guardar la memoria en una lista hace posible la recursión. 
 
     def goSub(self,cuadrup):
         x = list(map(lambda x: x.id ,self.funclst))
@@ -130,11 +148,15 @@ class vmach():
 
 
     def imprime(self,cuadrup,mem):
-        value = mem.getValue(cuadrup.res)
-        if cuadrup.res > 13999:
-          print(mem.getValue(value))
-        else: 
-          print(value)
+        if isinstance(cuadrup.res, str ):
+          print(re.sub('\"', '', cuadrup.res))
+          
+        else:
+          value = mem.getValue(cuadrup.res)
+          if cuadrup.res > 13999:
+            print(mem.getValue(value))
+          else: 
+            print(value)
 
     def leer(self,cuadrup,mem):
         valor = input("Leyendo:")
@@ -142,16 +164,6 @@ class vmach():
           mem.updateValue(valor,cuadrup.res)
         else: mem.updateValue(valor,mem.getValue(cuadrup.res))
 
-    def division(self,cuadrup,mem):     
-        var2 = mem.getValue(cuadrup.var2)
-        if(var2 == 0):
-            print('No se puede dividir entre 0')
-            quit()
-        else:
-            var1 = mem.getValue(cuadrup.var1)
-            res = cuadrup.res
-            valor = var1 / var2
-            mem.updateValue(valor,res)
 
     def era(self, cuadrup):
         self.direccionRegreso.append(cuadrup.var2)
@@ -189,7 +201,8 @@ class vmach():
         tipo = mem.getType(cuadrup.var1)
         parametro = params(valor,tipo)
         self.parametros.append(parametro)
-
+###########################################################
+# Sección de funciones especiales
     def mean(self,cuadrup,mem):
       lst = []
       for x in range(cuadrup.var2):
@@ -232,7 +245,6 @@ class vmach():
       lst = []
       for x in range(cuadrup.var2):
         lst.append(mem.getValue(cuadrup.var1+x+1))
-      print("hola", lst)
       value = st.variance(lst)
       plt.hist(lst, 10)
       plt.show()
@@ -260,7 +272,8 @@ class vmach():
                 cChar = cChar +1
             mem.updateValue(valor, dir)
 
-
+##############################
+#### Funcion Exe para ejecutar el código.
     def Exe(self, inicio, fin):
         self.memoriaprincipal.cVMem = self.mem.cVMem
         self.memoriaprincipal.gVMem = self.mem.gVMem
@@ -278,12 +291,10 @@ class vmach():
                 self.leer(cuadruplonow, self.mem)
             elif estatuto == '++' or estatuto == '--':
                 self.contadores(cuadruplonow,self.mem)
-            elif estatuto == '+' or estatuto == '-' or estatuto == '*':
+            elif estatuto == '+' or estatuto == '-' or estatuto == '*' or estatuto == '/':
                 self.operaciones(cuadruplonow,self.mem)
-            elif estatuto == '/':
-                self.division(cuadruplonow,self.mem)
             elif estatuto == '&&' or estatuto == '||' or estatuto == '<' or estatuto == '<=' or estatuto == '>' or estatuto == '>=' or estatuto == '!=' or estatuto == '==':
-                self.operacionesLogic(cuadruplonow,self.mem)
+                self.opBool(cuadruplonow,self.mem)
             elif estatuto == 'ERA':
                 self.era(cuadruplonow)
             elif estatuto == 'GOTO':
