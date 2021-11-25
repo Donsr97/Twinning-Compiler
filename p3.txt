@@ -1,0 +1,18 @@
+program ola; 
+
+def int fibonaccirec(int n){
+  if(n<=1){
+    return(n);
+  }
+  int z;
+  int x; 
+  z = fibonaccirec(n-1);
+  x = fibonaccirec(n-2);
+  return(z+x);
+}
+
+
+main{
+  
+  print(fibonaccirec(6));
+}
