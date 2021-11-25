@@ -1,0 +1,20 @@
+program ola; 
+
+def int factorialiter(int n){
+  int fact;
+  fact = 1;
+  if(n==1){
+    return(n);
+  }
+  while(n>1){
+    fact = fact * n;
+    n--;
+  }
+  return(fact);
+}
+
+
+main{
+  
+  print(factorialiter(6));
+}
